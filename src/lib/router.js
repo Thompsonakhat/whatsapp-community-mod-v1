@@ -12,12 +12,12 @@ import {
 
 const commandAliases = new Map([
   ["menu", ["hi", "hello", "hey", "hiya", "start", "menu", "main menu", "good morning", "good afternoon", "good evening", "0"]],
-  ["rules", ["1", "rules", "rule", "community rules"]],
-  ["announcements", ["2", "announcement", "announcements", "latest announcement", "news"]],
-  ["contact_admin", ["3", "contact admin", "admin", "contact admins", "moderator", "support"]],
-  ["settings", ["4", "settings", "setting", "preferences"]],
-  ["about", ["5", "about", "info", "who are you", "bot info"]],
-  ["help", ["6", "help", "commands", "what can you do", "how does this work"]],
+  ["help", ["1", "help", "commands", "command", "what can you do", "how does this work", "how can i use this bot", "how can i make use of this bot"]],
+  ["rules", ["2", "rules", "rule", "community rules"]],
+  ["announcements", ["3", "announcement", "announcements", "latest announcement", "news"]],
+  ["contact_admin", ["4", "contact admin", "admin", "contact admins", "moderator", "support"]],
+  ["settings", ["5", "settings", "setting", "preferences", "config", "configuration"]],
+  ["about", ["6", "about", "info", "who are you", "bot info", "what are you"]],
 ]);
 
 function detectCommand(normalizedText) {
@@ -57,12 +57,12 @@ export function routeCommunityMessage(event = {}) {
   }
 
   if (matchedCommand === "menu") return { matchedCommand, reply: mainMenu(event) };
+  if (matchedCommand === "help") return { matchedCommand, reply: helpReply(event) };
   if (matchedCommand === "rules") return { matchedCommand, reply: rulesReply(event) };
   if (matchedCommand === "announcements") return { matchedCommand, reply: announcementsReply(event) };
   if (matchedCommand === "contact_admin") return { matchedCommand, reply: contactAdminReply(event) };
   if (matchedCommand === "settings") return { matchedCommand, reply: settingsReply(event) };
   if (matchedCommand === "about") return { matchedCommand, reply: aboutReply(event) };
-  if (matchedCommand === "help") return { matchedCommand, reply: helpReply(event) };
 
   return {
     matchedCommand: "fallback",

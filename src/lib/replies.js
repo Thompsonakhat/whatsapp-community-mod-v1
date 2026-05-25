@@ -1,45 +1,48 @@
-const ADMIN_CONTACT_GUIDANCE = "Please send a short message explaining what you need, then tag or message one of the community admins using the approved admin contact method for this group.";
+import { BOT_PROFILE } from "./botProfile.js";
+
+const ADMIN_CONTACT_GUIDANCE =
+  "Send a short message explaining what you need, then tag or message one of the community admins using the approved admin contact method for this group.";
+
+function commandList() {
+  return BOT_PROFILE.commands.map((cmd) => "- " + cmd).join("\n");
+}
+
+function capabilityList() {
+  return BOT_PROFILE.capabilities.map((item) => "- " + item).join("\n");
+}
 
 function menuOptions() {
   return [
-    "1) Rules",
-    "2) Announcements",
-    "3) Contact Admin",
-    "4) Settings",
-    "5) About",
-    "6) Help",
+    "1) Help",
+    "2) Rules",
+    "3) Announcements",
+    "4) Contact Admin",
+    "5) Settings",
+    "6) About",
   ].join("\n");
 }
 
 export function mainMenu(event = {}) {
-  if (event?.isGroup) {
-    return [
-      "I can help this group with community basics.",
-      "Group admin features are coming soon.",
-      "",
-      menuOptions(),
-      "",
-      "Reply with a number or type rules, announcement, contact admin, settings, about, or help.",
-    ].join("\n");
-  }
-
-  const name = event?.senderName && event.senderName !== "Member" ? `, ${event.senderName}` : "";
+  const chatType = event?.isGroup ? "group" : "private chat";
 
   return [
-    `Hi${name}. I am your WhatsApp community assistant.`,
-    "I help members find rules, announcements, admin contact guidance, settings, and help.",
+    BOT_PROFILE.name,
+    "",
+    `I am active in this ${chatType}.`,
+    "Choose an option:",
     "",
     menuOptions(),
     "",
-    "Reply with a number or type a command like rules, announcement, or help.",
+    "You can reply with a number, or type a command like help, rules, settings, about, or contact admin.",
   ].join("\n");
 }
 
 export function rulesReply(event = {}) {
-  const intro = event?.isGroup ? "Community rules:" : "Here are the default community rules:";
+  const intro = event?.isGroup ? "Community rules for this group:" : "Default community rules:";
 
   return [
     intro,
+    "",
     "1) Be respectful to everyone.",
     "2) Do not spam the chat.",
     "3) Stay on topic.",
@@ -52,94 +55,97 @@ export function rulesReply(event = {}) {
 
 export function announcementsReply() {
   return [
-    "No active announcements yet.",
-    "Admins can update announcements in a future version.",
+    "Announcements",
+    "",
+    "No active announcements have been configured yet.",
+    "In a future version, admins will be able to set announcements directly from WhatsApp.",
     "",
     "Type menu to see other options.",
   ].join("\n");
 }
 
 export function contactAdminReply(event = {}) {
-  if (event?.isGroup) {
-    return [
-      "To reach an admin:",
-      ADMIN_CONTACT_GUIDANCE,
-      "",
-      "Group admin tools are coming soon.",
-    ].join("\n");
-  }
-
   return [
-    "To reach an admin:",
+    "Contact Admin",
+    "",
     ADMIN_CONTACT_GUIDANCE,
     "",
-    "Tip: include the topic, your question, and any urgent details.",
+    event?.isGroup
+      ? "Tip: include the topic and any urgent details so admins understand quickly."
+      : "Tip: if this is related to a group, mention the group name too.",
   ].join("\n");
 }
 
 export function settingsReply(event = {}) {
   return [
-    "Current settings:",
-    "Language: English",
-    "Reply style: short",
-    `Chat type: ${event?.isGroup ? "Group" : "Private"}`,
+    "Settings",
     "",
-    "Editable settings are coming soon.",
+    `Platform: ${BOT_PROFILE.platform}`,
+    `Chat type: ${event?.isGroup ? "Group" : "Private"}`,
+    `Chat ID: ${event?.chatId || "unknown"}`,
+    "",
+    "Current behavior:",
+    "- Plain-text commands enabled",
+    "- Slash-style commands supported",
+    "- Numbered menu replies supported",
+    "- Short WhatsApp-style replies enabled",
+    "",
+    "Advanced editable settings are coming soon.",
     "Type menu to return to the main menu.",
   ].join("\n");
 }
 
 export function aboutReply(event = {}) {
-  if (event?.isGroup) {
-    return [
-      "I am a WhatsApp community helper.",
-      "I can show rules, announcements, admin contact guidance, settings, and help.",
-      "Group admin features are coming soon.",
-    ].join("\n");
-  }
-
   return [
-    "I am a WhatsApp community helper built for CookMyBots managed transport.",
-    "I help members navigate community information, rules, announcements, and support options.",
+    "About",
     "",
-    "Type menu anytime to see what I can do.",
+    BOT_PROFILE.description,
+    "",
+    "What I can do:",
+    capabilityList(),
+    "",
+    "Commands:",
+    commandList(),
+    "",
+    event?.isGroup
+      ? "Group note: I can respond inside this group when CookMyBots receives group messages from the connected WhatsApp session."
+      : "Private chat note: you can use me here directly, and group support works when group messages are routed by CookMyBots.",
   ].join("\n");
 }
 
 export function helpReply(event = {}) {
-  if (event?.isGroup) {
-    return [
-      "Try these options:",
-      "menu, rules, announcement, contact admin, settings, about, help",
-      "You can also reply with 1 to 6 from the menu.",
-    ].join("\n");
-  }
-
   return [
-    "You can type these plain-text commands:",
-    "hi, hello, hey, start, menu",
-    "rules, announcement, announcements",
-    "contact admin, admin",
-    "settings, about, help",
+    "Help",
     "",
-    "Numbered navigation:",
-    "1) Rules",
-    "2) Announcements",
-    "3) Contact Admin",
-    "4) Settings",
-    "5) About",
-    "6) Help",
+    "You can use these commands:",
+    commandList(),
+    "",
+    "Numbered menu:",
+    menuOptions(),
+    "",
+    event?.isGroup
+      ? "This is a group chat. Group admin-only tools are coming soon."
+      : "This is a private chat. Type menu anytime to return to the main menu.",
   ].join("\n");
 }
 
 export function fallbackReply(event = {}, looksLikeCommunityQuestion = false) {
   if (looksLikeCommunityQuestion) {
-    return "It sounds like you are asking about community basics. Try rules, help, contact admin, or type menu.";
+    return [
+      "I can help with community basics.",
+      "",
+      "Try one of these:",
+      "- rules",
+      "- announcements",
+      "- contact admin",
+      "- help",
+      "- menu",
+    ].join("\n");
   }
 
-  if (event?.isGroup) {
-    return "I did not understand that. Type menu or choose 1 to 6.";
-  }
-
-  return "I did not understand that. Please type menu or choose a number from the menu.";
+  return [
+    "I did not understand that as a command.",
+    "",
+    "Type menu to open the main menu, or type help to see what I can do.",
+  ].join("\n");
 }
